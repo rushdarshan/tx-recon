@@ -468,8 +468,8 @@
         setStatus('Loading report');
         const res = await fetch('/report/' + runId);
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        document.getElementById('json').textContent = JSON.stringify(data, null, 2);
+        const text = await res.text();
+        document.getElementById('json').textContent = text;
 
         const summaryRes = await fetch('/report/' + runId + '/summary');
         if (summaryRes.ok) {
