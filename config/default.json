@@ -1,0 +1,8 @@
+{
+  "timestampToleranceSeconds": 300,
+  "quantityTolerancePct": 0.01,
+  "port": 3000,
+  "mongoUri": "mongodb://localhost:27017/reconciliation",
+  "userCsvPath": "user_transactions.csv",
+  "exchangeCsvPath": "exchange_transactions.csv"
+}
