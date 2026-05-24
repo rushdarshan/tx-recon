@@ -473,7 +473,8 @@
 
         const summaryRes = await fetch('/report/' + runId + '/summary');
         if (summaryRes.ok) {
-          const summary = await summaryRes.json();
+          const summaryResponse = await summaryRes.json();
+          const summary = summaryResponse.data || summaryResponse;
           renderSummary(summary, runId);
         }
 
