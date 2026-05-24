@@ -4,167 +4,313 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Transaction Reconciliation Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --card: #1f2937;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --border: #374151;
-      --accent: #8b5cf6;
-      --accent2: #22c55e;
-      --danger: #ef4444;
-      --warn: #f59e0b;
+      --accent: #5B8CFF;
+      --accent-hover: #4A7BFF;
+      --bg: #0F1115;
+      --surface: #151922;
+      --border: #23262F;
+      --text: #E6E8EF;
+      --text-muted: #A5ACB8;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --focus-ring: 0 0 0 3px rgba(91, 140, 255, 0.35);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Inter, system-ui, Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg), #020617);
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--bg);
       color: var(--text);
+      -webkit-font-smoothing: antialiased;
     }
     .wrap {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 24px;
+      padding: var(--space-lg);
     }
-    .hero {
-      background: rgba(17,24,39,.9);
+    .panel {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
     }
-    h1 { margin: 0 0 8px; font-size: 32px; }
-    p { margin: 0; color: var(--muted); }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-top: 20px;
+    h1 {
+      margin: 0 0 4px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
-    .card {
-      background: rgba(31,41,55,.95);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      min-height: 110px;
+    .sub {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.5;
     }
-    .label { color: var(--muted); font-size: 13px; }
-    .value { font-size: 30px; font-weight: 700; margin-top: 10px; }
     .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin: 20px 0;
+      gap: var(--space-sm);
+      margin: var(--space-lg) 0;
     }
-    input, button {
-      border-radius: 12px;
+    .toolbar input,
+    .toolbar button {
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-      padding: 12px 14px;
+      padding: 10px 14px;
+      font-family: inherit;
       font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    input {
-      background: #0b1220;
+    .toolbar input {
+      background: #0B0E12;
       color: var(--text);
-      min-width: 220px;
+      min-width: 200px;
       outline: none;
     }
-    button {
+    .toolbar input:focus {
+      border-color: var(--accent);
+      box-shadow: var(--focus-ring);
+    }
+    .toolbar input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+    .btn {
       background: var(--accent);
-      color: white;
+      color: var(--bg);
       cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      border: none;
+      outline: none;
+      position: relative;
     }
-    button.secondary {
-      background: #0b1220;
+    .btn:hover {
+      background: var(--accent-hover);
+    }
+    .btn:focus-visible {
+      box-shadow: var(--focus-ring);
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: transparent;
       color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.04);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .btn[aria-busy=true] {
+      pointer-events: none;
+    }
+    .btn[aria-busy=true] .spinner {
+      display: inline-block;
+      animation: spin 0.6s linear infinite;
+    }
+    .btn[aria-busy=true] .label-text {
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn[aria-busy=true] .spinner {
+        animation: none;
+        opacity: 0.5;
+      }
+      .toolbar input,
+      .toolbar button {
+        transition: none;
+      }
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-height: 24px;
+      margin-bottom: var(--space-sm);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .status.error { color: #F87171; }
+    .status.ok { color: #6EE7B7; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-sm);
+    }
+    .metric {
+      padding: var(--space-md) var(--space-md) var(--space-lg);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-top: 6px;
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
     }
     .section {
-      margin-top: 20px;
-      background: rgba(17,24,39,.9);
+      margin-top: var(--space-sm);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: var(--radius-md);
       overflow: hidden;
     }
     .section h2 {
       margin: 0;
-      padding: 18px 20px;
+      padding: var(--space-md) var(--space-lg);
       border-bottom: 1px solid var(--border);
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
     }
-    .table-wrap { overflow: auto; }
+    .table-wrap { overflow-x: auto; }
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
+      min-width: 720px;
     }
     th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #243041;
+      padding: 12px var(--space-md);
+      border-bottom: 1px solid var(--border);
       text-align: left;
-      font-size: 14px;
+      font-size: 13px;
       vertical-align: top;
+      line-height: 1.45;
     }
-    th { color: #cbd5e1; background: #0b1220; position: sticky; top: 0; }
+    th {
+      color: var(--text);
+      font-weight: 600;
+      background: #0B0E12;
+      position: sticky;
+      top: 0;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
     .pill {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
-    .matched { background: rgba(34,197,94,.15); color: #86efac; }
-    .conflicting { background: rgba(245,158,11,.15); color: #fcd34d; }
-    .unmatched { background: rgba(239,68,68,.15); color: #fca5a5; }
+    .pill-matched { background: rgba(110,231,183,0.12); color: #6EE7B7; }
+    .pill-conflicting { background: rgba(251,191,36,0.12); color: #FBBF24; }
+    .pill-unmatched { background: rgba(248,113,113,0.12); color: #F87171; }
     pre {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
-      color: #d1d5db;
-      font-size: 13px;
+      font-family: 'SF Mono', SFMono-Regular, 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-muted);
     }
-    .status {
-      margin-top: 12px;
-      color: var(--muted);
+    .json-block {
+      padding: var(--space-lg);
+    }
+    .empty-state {
+      padding: var(--space-lg);
+      text-align: center;
+      color: var(--text-muted);
       font-size: 14px;
     }
-    .error { color: #fca5a5; }
-    .ok { color: #86efac; }
+    @media (max-width: 640px) {
+      .wrap { padding: var(--space-md); }
+      .panel,
+      .section h2,
+      .json-block,
+      .empty-state { padding: var(--space-md); }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .toolbar input { min-width: 0; flex: 1 1 100%; }
+      .toolbar button { flex: 1 1 auto; }
+      th, td { padding: 10px 12px; font-size: 12px; }
+      h1 { font-size: 24px; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="hero">
+    <div class="panel">
       <h1>Transaction Reconciliation Engine</h1>
-      <p>Run reconciliation, check summary counts, inspect unmatched rows, and view the full report.</p>
+      <p class="sub">Trigger reconciliation, inspect counts, and review unmatched rows.</p>
 
       <div class="toolbar">
         <input id="timestampToleranceSeconds" type="number" value="300" placeholder="Timestamp tolerance (seconds)" />
         <input id="quantityTolerancePct" type="number" step="0.0001" value="0.01" placeholder="Quantity tolerance (%)" />
-        <button onclick="runReconcile()">Run Reconciliation</button>
-        <button class="secondary" onclick="loadLatest()">Load Latest Report</button>
+        <button id="runBtn" class="btn" onclick="runReconcile()">
+          <span class="spinner"></span><span class="label-text">Run Reconciliation</span>
+        </button>
+        <button id="loadBtn" class="btn btn-secondary" onclick="loadLatest()">Load Latest Report</button>
       </div>
 
-      <div id="status" class="status">Ready.</div>
+      <div id="status" class="status" role="status" aria-live="polite">Ready.</div>
 
-      <div class="grid">
-        <div class="card">
-          <div class="label">Matched</div>
-          <div class="value" id="matched">0</div>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">Matched</div>
+          <div class="metric-value" id="matched">0</div>
         </div>
-        <div class="card">
-          <div class="label">Conflicting</div>
-          <div class="value" id="conflicting">0</div>
+        <div class="metric">
+          <div class="metric-label">Conflicting</div>
+          <div class="metric-value" id="conflicting">0</div>
         </div>
-        <div class="card">
-          <div class="label">Unmatched User</div>
-          <div class="value" id="unmatchedUser">0</div>
+        <div class="metric">
+          <div class="metric-label">Unmatched User</div>
+          <div class="metric-value" id="unmatchedUser">0</div>
         </div>
-        <div class="card">
-          <div class="label">Unmatched Exchange</div>
-          <div class="value" id="unmatchedExchange">0</div>
+        <div class="metric">
+          <div class="metric-label">Unmatched Exchange</div>
+          <div class="metric-value" id="unmatchedExchange">0</div>
         </div>
       </div>
     </div>
@@ -175,15 +321,15 @@
         <table>
           <thead>
             <tr>
-              <th>runId</th>
-              <th>matched</th>
-              <th>conflicting</th>
-              <th>unmatchedUser</th>
-              <th>unmatchedExchange</th>
+              <th>Run ID</th>
+              <th>Matched</th>
+              <th>Conflicting</th>
+              <th>Unmatched User</th>
+              <th>Unmatched Exchange</th>
             </tr>
           </thead>
           <tbody id="summaryBody">
-            <tr><td colspan="5">No data yet.</td></tr>
+            <tr><td class="empty-state" colspan="5">No data yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -202,7 +348,7 @@
             </tr>
           </thead>
           <tbody id="unmatchedBody">
-            <tr><td colspan="4">No data yet.</td></tr>
+            <tr><td class="empty-state" colspan="4">No data yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -210,7 +356,7 @@
 
     <div class="section">
       <h2>Full Report JSON</h2>
-      <div style="padding:20px;">
+      <div class="json-block">
         <pre id="json">No report loaded.</pre>
       </div>
     </div>
@@ -218,128 +364,137 @@
 
   <script>
     let lastRunId = null;
+    const runBtn = document.getElementById('runBtn');
+    const loadBtn = document.getElementById('loadBtn');
 
-    function setStatus(msg, kind = "") {
-      const el = document.getElementById("status");
-      el.className = "status " + kind;
+    function setLoading(loading) {
+      runBtn.disabled = loading;
+      loadBtn.disabled = loading;
+      runBtn.setAttribute('aria-busy', String(loading));
+    }
+
+    function setStatus(msg, kind) {
+      const el = document.getElementById('status');
+      el.className = 'status' + (kind ? ' ' + kind : '');
       el.textContent = msg;
     }
 
     function renderSummary(data, runId) {
-      document.getElementById("matched").textContent = data.matched ?? 0;
-      document.getElementById("conflicting").textContent = data.conflicting ?? 0;
-      document.getElementById("unmatchedUser").textContent = data.unmatchedUser ?? 0;
-      document.getElementById("unmatchedExchange").textContent = data.unmatchedExchange ?? 0;
+      document.getElementById('matched').textContent = data.matched ?? 0;
+      document.getElementById('conflicting').textContent = data.conflicting ?? 0;
+      document.getElementById('unmatchedUser').textContent = data.unmatchedUser ?? 0;
+      document.getElementById('unmatchedExchange').textContent = data.unmatchedExchange ?? 0;
 
-      document.getElementById("summaryBody").innerHTML = `
-        <tr>
-          <td>${runId || "-"}</td>
+      document.getElementById('summaryBody').innerHTML =
+        `<tr>
+          <td>${runId || '-'}</td>
           <td>${data.matched ?? 0}</td>
           <td>${data.conflicting ?? 0}</td>
           <td>${data.unmatchedUser ?? 0}</td>
           <td>${data.unmatchedExchange ?? 0}</td>
-        </tr>
-      `;
+        </tr>`;
     }
 
     function renderUnmatched(items) {
+      const body = document.getElementById('unmatchedBody');
       if (!items || !items.length) {
-        document.getElementById("unmatchedBody").innerHTML =
-          `<tr><td colspan="4">No unmatched rows.</td></tr>`;
+        body.innerHTML = '<tr><td class="empty-state" colspan="4">No unmatched rows.</td></tr>';
         return;
       }
 
-      document.getElementById("unmatchedBody").innerHTML = items.map(row => {
-        const userJson = row.userTransaction ? JSON.stringify(row.userTransaction, null, 2) : "";
-        const exchangeJson = row.exchangeTransaction ? JSON.stringify(row.exchangeTransaction, null, 2) : "";
+      body.innerHTML = items.map(row => {
+        const userJson = row.userTransaction ? JSON.stringify(row.userTransaction, null, 2) : '';
+        const exchangeJson = row.exchangeTransaction ? JSON.stringify(row.exchangeTransaction, null, 2) : '';
         const pillClass =
-          row.category === "MATCHED" ? "matched" :
-          row.category === "CONFLICTING" ? "conflicting" : "unmatched";
+          row.category === 'MATCHED' ? 'pill-matched' :
+          row.category === 'CONFLICTING' ? 'pill-conflicting' : 'pill-unmatched';
 
-        return `
-          <tr>
-            <td><span class="pill ${pillClass}">${row.category || "-"}</span></td>
-            <td>${row.reason || "-"}</td>
-            <td><pre>${escapeHtml(userJson)}</pre></td>
-            <td><pre>${escapeHtml(exchangeJson)}</pre></td>
-          </tr>
-        `;
-      }).join("");
+        return `<tr>
+          <td><span class="pill ${pillClass}">${row.category || '-'}</span></td>
+          <td>${row.reason || '-'}</td>
+          <td><pre>${escapeHtml(userJson)}</pre></td>
+          <td><pre>${escapeHtml(exchangeJson)}</pre></td>
+        </tr>`;
+      }).join('');
     }
 
     function escapeHtml(str) {
       return String(str)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;");
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
     }
 
     async function runReconcile() {
+      setLoading(true);
       try {
-        setStatus("Running reconciliation...");
-        const timestampToleranceSeconds = Number(document.getElementById("timestampToleranceSeconds").value || 300);
-        const quantityTolerancePct = Number(document.getElementById("quantityTolerancePct").value || 0.01);
+        setStatus('Running reconciliation');
+        const timestampToleranceSeconds = Number(document.getElementById('timestampToleranceSeconds').value || 300);
+        const quantityTolerancePct = Number(document.getElementById('quantityTolerancePct').value || 0.01);
 
-        const res = await fetch("/reconcile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/reconcile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timestampToleranceSeconds, quantityTolerancePct })
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-
         const payload = data.data || data;
 
         lastRunId = payload.runId;
         renderSummary(payload.summary || {}, payload.runId);
-        document.getElementById("json").textContent = JSON.stringify(data, null, 2);
-
+        document.getElementById('json').textContent = JSON.stringify(data, null, 2);
         await loadUnmatched(payload.runId);
-        setStatus(`Reconciliation completed. Run ID: ${payload.runId}`, "ok");
+        setStatus('Reconciliation completed. Run ID: ' + payload.runId, 'ok');
       } catch (err) {
-        setStatus(`Error: ${err.message}`, "error");
+        setStatus('Error: ' + err.message, 'error');
+      } finally {
+        setLoading(false);
       }
     }
 
     async function loadLatest() {
       if (!lastRunId) {
-        setStatus("No runId yet. Click Run Reconciliation first.", "error");
+        setStatus('No runId yet. Click Run Reconciliation first.', 'error');
         return;
       }
       await loadReport(lastRunId);
     }
 
     async function loadReport(runId) {
+      setLoading(true);
       try {
-        setStatus("Loading report...");
-        const res = await fetch(`/report/${runId}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setStatus('Loading report');
+        const res = await fetch('/report/' + runId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        document.getElementById("json").textContent = JSON.stringify(data, null, 2);
+        document.getElementById('json').textContent = JSON.stringify(data, null, 2);
 
-        const summaryRes = await fetch(`/report/${runId}/summary`);
+        const summaryRes = await fetch('/report/' + runId + '/summary');
         if (summaryRes.ok) {
           const summary = await summaryRes.json();
           renderSummary(summary, runId);
         }
 
         await loadUnmatched(runId);
-        setStatus(`Report loaded: ${runId}`, "ok");
+        setStatus('Report loaded: ' + runId, 'ok');
       } catch (err) {
-        setStatus(`Error: ${err.message}`, "error");
+        setStatus('Error: ' + err.message, 'error');
+      } finally {
+        setLoading(false);
       }
     }
 
     async function loadUnmatched(runId) {
       try {
-        const res = await fetch(`/report/${runId}/unmatched`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch('/report/' + runId + '/unmatched');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         renderUnmatched(data);
       } catch (err) {
-        document.getElementById("unmatchedBody").innerHTML =
-          `<tr><td colspan="4">Failed to load unmatched rows.</td></tr>`;
+        document.getElementById('unmatchedBody').innerHTML =
+          '<tr><td class="empty-state" colspan="4">Failed to load unmatched rows.</td></tr>';
       }
     }
   </script>
