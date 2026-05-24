@@ -6,7 +6,11 @@ async function main() {
   const config = loadConfig()
 
   if (!config.mongoUri || config.mongoUri === 'mongodb://localhost:27017/reconciliation') {
-    const mongod = await MongoMemoryServer.create()
+    const mongod = await MongoMemoryServer.create({
+      binary: {
+        version: process.env.MONGODB_VERSION || '7.0.3',
+      },
+    })
     config.mongoUri = mongod.getUri()
     console.log(`Started in-memory MongoDB at ${config.mongoUri}`)
   }
