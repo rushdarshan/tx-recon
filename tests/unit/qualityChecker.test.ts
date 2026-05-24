@@ -13,6 +13,8 @@ function makeRow(overrides: Partial<RawTransaction> = {}): RawTransaction {
     note: null,
     qualityFlags: [],
     source: 'user',
+    rowIndex: 1,
+    raw: {},
     ...overrides,
   }
 }

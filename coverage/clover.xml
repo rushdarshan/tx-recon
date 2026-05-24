@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779644711993" clover="3.2.0">
-  <project timestamp="1779644711993" name="All files">
-    <metrics statements="235" coveredstatements="214" conditionals="196" coveredconditionals="141" methods="42" coveredmethods="41" elements="473" coveredelements="396" complexity="0" loc="235" ncloc="235" packages="4" files="8" classes="8"/>
+<coverage generated="1779646444545" clover="3.2.0">
+  <project timestamp="1779646444545" name="All files">
+    <metrics statements="237" coveredstatements="216" conditionals="199" coveredconditionals="144" methods="42" coveredmethods="41" elements="478" coveredelements="401" complexity="0" loc="237" ncloc="237" packages="4" files="8" classes="8"/>
     <package name="db.models">
-      <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="Transaction.ts" path="C:\Users\rushd\Downloads\ele\src\db\models\Transaction.ts">
-        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
-        <line num="23" count="1" type="stmt"/>
-        <line num="29" count="1" type="stmt"/>
-        <line num="43" count="1" type="stmt"/>
-        <line num="44" count="1" type="stmt"/>
-        <line num="46" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
       </file>
     </package>
     <package name="ingest">
-      <metrics statements="64" coveredstatements="63" conditionals="56" coveredconditionals="41" methods="15" coveredmethods="15"/>
+      <metrics statements="65" coveredstatements="64" conditionals="59" coveredconditionals="44" methods="15" coveredmethods="15"/>
       <file name="csvParser.ts" path="C:\Users\rushd\Downloads\ele\src\ingest\csvParser.ts">
         <metrics statements="7" coveredstatements="7" conditionals="16" coveredconditionals="8" methods="2" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
@@ -27,7 +28,7 @@
         <line num="16" count="564" type="stmt"/>
       </file>
       <file name="index.ts" path="C:\Users\rushd\Downloads\ele\src\ingest\index.ts">
-        <metrics statements="30" coveredstatements="29" conditionals="20" coveredconditionals="13" methods="9" coveredmethods="9"/>
+        <metrics statements="28" coveredstatements="28" conditionals="19" coveredconditionals="13" methods="9" coveredmethods="9"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -38,29 +39,27 @@
         <line num="14" count="357" type="stmt"/>
         <line num="15" count="357" type="cond" truecount="2" falsecount="0"/>
         <line num="19" count="357" type="stmt"/>
-        <line num="34" count="357" type="cond" truecount="1" falsecount="0"/>
-        <line num="35" count="35" type="stmt"/>
-        <line num="36" count="28" type="cond" truecount="1" falsecount="1"/>
-        <line num="37" count="28" type="stmt"/>
-        <line num="40" count="1" type="stmt"/>
-        <line num="41" count="14" type="stmt"/>
+        <line num="35" count="357" type="cond" truecount="1" falsecount="0"/>
+        <line num="36" count="35" type="stmt"/>
+        <line num="37" count="28" type="cond" truecount="1" falsecount="1"/>
+        <line num="38" count="28" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
         <line num="42" count="14" type="stmt"/>
-        <line num="44" count="14" type="stmt"/>
-        <line num="45" count="357" type="stmt"/>
+        <line num="43" count="14" type="stmt"/>
+        <line num="45" count="14" type="stmt"/>
         <line num="46" count="357" type="stmt"/>
         <line num="47" count="357" type="stmt"/>
-        <line num="50" count="357" type="stmt"/>
-        <line num="63" count="14" type="stmt"/>
-        <line num="64" count="14" type="stmt"/>
-        <line num="66" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="69" count="14" type="stmt"/>
-        <line num="72" count="1" type="stmt"/>
+        <line num="48" count="357" type="stmt"/>
+        <line num="51" count="357" type="stmt"/>
+        <line num="66" count="14" type="stmt"/>
+        <line num="68" count="14" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="75" count="7" type="stmt"/>
         <line num="76" count="7" type="stmt"/>
         <line num="77" count="7" type="stmt"/>
-        <line num="78" count="7" type="stmt"/>
       </file>
       <file name="qualityChecker.ts" path="C:\Users\rushd\Downloads\ele\src\ingest\qualityChecker.ts">
-        <metrics statements="27" coveredstatements="27" conditionals="20" coveredconditionals="20" methods="4" coveredmethods="4"/>
+        <metrics statements="30" coveredstatements="29" conditionals="24" coveredconditionals="23" methods="4" coveredmethods="4"/>
         <line num="3" count="2" type="stmt"/>
         <line num="6" count="368" type="stmt"/>
         <line num="7" count="368" type="cond" truecount="2" falsecount="0"/>
@@ -81,13 +80,16 @@
         <line num="30" count="1" type="stmt"/>
         <line num="31" count="367" type="cond" truecount="1" falsecount="0"/>
         <line num="32" count="9" type="stmt"/>
-        <line num="36" count="369" type="cond" truecount="1" falsecount="0"/>
-        <line num="37" count="9" type="stmt"/>
-        <line num="39" count="369" type="stmt"/>
-        <line num="41" count="369" type="stmt"/>
-        <line num="44" count="2" type="stmt"/>
-        <line num="45" count="15" type="stmt"/>
-        <line num="46" count="359" type="stmt"/>
+        <line num="36" count="369" type="cond" truecount="0" falsecount="1"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="40" count="369" type="cond" truecount="3" falsecount="0"/>
+        <line num="41" count="9" type="stmt"/>
+        <line num="43" count="369" type="cond" truecount="1" falsecount="0"/>
+        <line num="44" count="369" type="stmt"/>
+        <line num="47" count="369" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="15" type="stmt"/>
+        <line num="52" count="359" type="stmt"/>
       </file>
     </package>
     <package name="matching">

@@ -18,6 +18,7 @@ function userTx(overrides: Partial<ParsedTransaction>): ParsedTransaction {
     note: null,
     qualityFlags: [],
     source: 'user',
+    rowIndex: 1,
     ...overrides,
   }
 }
@@ -34,6 +35,7 @@ function exchangeTx(overrides: Partial<ParsedTransaction>): ParsedTransaction {
     note: null,
     qualityFlags: [],
     source: 'exchange',
+    rowIndex: 1,
     ...overrides,
   }
 }

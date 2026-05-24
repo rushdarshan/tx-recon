@@ -7,7 +7,7 @@ export interface QualityFlagDoc {
 }
 
 export interface ITransaction extends Document {
-  transactionId: string
+  transactionId: string | null
   timestamp: Date | null
   type: string | null
   asset: string | null
@@ -17,6 +17,8 @@ export interface ITransaction extends Document {
   note: string | null
   qualityFlags: QualityFlagDoc[]
   source: 'user' | 'exchange'
+  rowIndex: number
+  raw: Record<string, string> | null
   ingestedAt: Date
 }
 
@@ -27,7 +29,7 @@ const qualityFlagSchema = new Schema<QualityFlagDoc>({
 }, { _id: false })
 
 const transactionSchema = new Schema<ITransaction>({
-  transactionId: { type: String, required: true },
+  transactionId: { type: String, default: null },
   timestamp: { type: Date, default: null },
   type: { type: String, default: null },
   asset: { type: String, default: null },
@@ -37,10 +39,13 @@ const transactionSchema = new Schema<ITransaction>({
   note: { type: String, default: null },
   qualityFlags: { type: [qualityFlagSchema], default: [] },
   source: { type: String, enum: ['user', 'exchange'], required: true },
+  rowIndex: { type: Number, required: true },
+  raw: { type: Schema.Types.Mixed, default: null },
   ingestedAt: { type: Date, default: Date.now },
 })
 
 transactionSchema.index({ transactionId: 1, source: 1 })
-transactionSchema.index({ source: 1 })
+transactionSchema.index({ source: 1, timestamp: 1 })
+transactionSchema.index({ source: 1, asset: 1, type: 1 })
 
 export const Transaction = mongoose.model<ITransaction>('Transaction', transactionSchema)

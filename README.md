@@ -41,12 +41,14 @@ POST /reconcile
 Returns:
 ```json
 {
-  "runId": "uuid",
-  "summary": {
-    "matched": 23,
-    "conflicting": 0,
-    "unmatchedUser": 3,
-    "unmatchedExchange": 2
+  "data": {
+    "runId": "uuid",
+    "summary": {
+      "matched": 23,
+      "conflicting": 0,
+      "unmatchedUser": 3,
+      "unmatchedExchange": 2
+    }
   }
 }
 ```
@@ -75,6 +77,30 @@ npm test
 ```
 
 Uses `mongodb-memory-server` for integration tests — no external MongoDB needed.
+
+## API Response Format
+
+Successful JSON responses are wrapped:
+
+```json
+{
+  "data": { "..." : "..." }
+}
+```
+
+Errors follow:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input",
+    "details": [
+      { "field": "timestampToleranceSeconds", "message": "Must be a positive number" }
+    ]
+  }
+}
+```
 
 ## Key Design Decisions
 

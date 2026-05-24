@@ -27,6 +27,7 @@ function toParsed(raw: RawTransaction): ParsedTransaction {
     note: raw.note ?? null,
     qualityFlags: raw.qualityFlags,
     source: raw.source,
+    rowIndex: raw.rowIndex,
   }
 }
 
@@ -47,17 +48,19 @@ export async function ingestCsv(filePath: string, source: 'user' | 'exchange'): 
     return toParsed(row)
   })
 
-  const docs = parsedRows.map((row) => ({
-    transactionId: row.transactionId,
-    timestamp: row.timestamp,
-    type: row.type,
-    asset: row.asset,
-    quantity: row.quantity,
-    priceUsd: row.priceUsd,
-    fee: row.fee,
-    note: row.note,
-    qualityFlags: row.qualityFlags,
-    source: row.source,
+  const docs = rawRows.map((raw, i) => ({
+    transactionId: parsedRows[i].transactionId,
+    timestamp: parsedRows[i].timestamp,
+    type: parsedRows[i].type,
+    asset: parsedRows[i].asset,
+    quantity: parsedRows[i].quantity,
+    priceUsd: parsedRows[i].priceUsd,
+    fee: parsedRows[i].fee,
+    note: parsedRows[i].note,
+    qualityFlags: parsedRows[i].qualityFlags,
+    source: parsedRows[i].source,
+    rowIndex: raw.rowIndex,
+    raw: raw.raw,
   }))
 
   await Transaction.insertMany(docs, { ordered: false })

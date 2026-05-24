@@ -9,7 +9,7 @@ export interface QualityFlag {
 }
 
 export interface RawTransaction {
-  transactionId: string
+  transactionId: string | null
   timestamp: string | null
   type: string | null
   asset: string | null
@@ -19,10 +19,12 @@ export interface RawTransaction {
   note: string | null
   qualityFlags: QualityFlag[]
   source: Source
+  rowIndex: number
+  raw: Record<string, string>
 }
 
 export interface ParsedTransaction {
-  transactionId: string
+  transactionId: string | null
   timestamp: Date | null
   type: TransactionType | null
   asset: string | null
@@ -32,6 +34,7 @@ export interface ParsedTransaction {
   note: string | null
   qualityFlags: QualityFlag[]
   source: Source
+  rowIndex: number
 }
 
 export type MatchCategory =

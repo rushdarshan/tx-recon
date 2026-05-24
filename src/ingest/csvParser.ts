@@ -12,9 +12,9 @@ export function parseCsv(filePath: string, source: Source): RawTransaction[] {
     relax_column_count: true,
   })
 
-  return records.map((record) => {
+  return records.map((record, i) => {
     return {
-      transactionId: record.transaction_id ?? '',
+      transactionId: record.transaction_id || null,
       timestamp: record.timestamp ?? null,
       type: record.type ?? null,
       asset: record.asset ?? null,
@@ -24,6 +24,8 @@ export function parseCsv(filePath: string, source: Source): RawTransaction[] {
       note: record.note ?? null,
       qualityFlags: [],
       source,
+      rowIndex: i + 1,
+      raw: record,
     }
   })
 }

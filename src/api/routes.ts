@@ -11,6 +11,35 @@ import { ReconciliationConfig, MatchResult } from '../types'
 
 const router = Router()
 
+interface ErrorDetail {
+  field?: string
+  message: string
+}
+
+function sendData(res: Response, data: unknown, meta?: Record<string, unknown>) {
+  if (meta) {
+    res.json({ data, meta })
+    return
+  }
+  res.json({ data })
+}
+
+function sendError(
+  res: Response,
+  status: number,
+  code: string,
+  message: string,
+  details?: ErrorDetail[]
+) {
+  const payload: { error: { code: string; message: string; details?: ErrorDetail[] } } = {
+    error: { code, message },
+  }
+  if (details && details.length > 0) {
+    payload.error.details = details
+  }
+  res.status(status).json(payload)
+}
+
 router.post('/reconcile', async (req: Request, res: Response) => {
   try {
     const baseConfig = loadConfig(req.body)
@@ -23,7 +52,14 @@ router.post('/reconcile', async (req: Request, res: Response) => {
     }
 
     if (runConfig.timestampToleranceSeconds <= 0 || runConfig.quantityTolerancePct <= 0) {
-      res.status(400).json({ error: 'Tolerances must be positive numbers' })
+      const details: ErrorDetail[] = []
+      if (runConfig.timestampToleranceSeconds <= 0) {
+        details.push({ field: 'timestampToleranceSeconds', message: 'Must be a positive number' })
+      }
+      if (runConfig.quantityTolerancePct <= 0) {
+        details.push({ field: 'quantityTolerancePct', message: 'Must be a positive number' })
+      }
+      sendError(res, 400, 'VALIDATION_ERROR', 'Invalid tolerance values', details)
       return
     }
 
@@ -56,9 +92,9 @@ router.post('/reconcile', async (req: Request, res: Response) => {
 
     await disconnect()
 
-    res.json({ runId, summary })
+    sendData(res, { runId, summary })
   } catch (err: any) {
-    res.status(500).json({ error: err.message })
+    sendError(res, 500, 'INTERNAL_ERROR', err.message ?? 'Unexpected error')
   }
 })
 
@@ -67,10 +103,10 @@ router.get('/report/:runId', async (req: Request, res: Response) => {
     const config = loadConfig()
     await connect(config.mongoUri!)
 
-    const run = await ReconciliationRun.findOne({ runId: req.params.runId })
+    const run = await ReconciliationRun.findOne({ runId: req.params.runId }).lean()
     if (!run) {
       await disconnect()
-      res.status(404).json({ error: 'Run not found' })
+      sendError(res, 404, 'NOT_FOUND', 'Run not found')
       return
     }
 
@@ -82,7 +118,7 @@ router.get('/report/:runId', async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename="reconciliation-${req.params.runId}.csv"`)
     res.send(csv)
   } catch (err: any) {
-    res.status(500).json({ error: err.message })
+    sendError(res, 500, 'INTERNAL_ERROR', err.message ?? 'Unexpected error')
   }
 })
 
@@ -91,22 +127,22 @@ router.get('/report/:runId/summary', async (req: Request, res: Response) => {
     const config = loadConfig()
     await connect(config.mongoUri!)
 
-    const run = await ReconciliationRun.findOne({ runId: req.params.runId })
+    const run = await ReconciliationRun.findOne({ runId: req.params.runId }).lean()
     if (!run) {
       await disconnect()
-      res.status(404).json({ error: 'Run not found' })
+      sendError(res, 404, 'NOT_FOUND', 'Run not found')
       return
     }
 
     await disconnect()
 
-    res.json({
+    sendData(res, {
       runId: run.runId,
-      ...run.summary,
+      summary: run.summary,
       config: run.config,
     })
   } catch (err: any) {
-    res.status(500).json({ error: err.message })
+    sendError(res, 500, 'INTERNAL_ERROR', err.message ?? 'Unexpected error')
   }
 })
 
@@ -115,10 +151,10 @@ router.get('/report/:runId/unmatched', async (req: Request, res: Response) => {
     const config = loadConfig()
     await connect(config.mongoUri!)
 
-    const run = await ReconciliationRun.findOne({ runId: req.params.runId })
+    const run = await ReconciliationRun.findOne({ runId: req.params.runId }).lean()
     if (!run) {
       await disconnect()
-      res.status(404).json({ error: 'Run not found' })
+      sendError(res, 404, 'NOT_FOUND', 'Run not found')
       return
     }
 
@@ -128,9 +164,9 @@ router.get('/report/:runId/unmatched', async (req: Request, res: Response) => {
 
     await disconnect()
 
-    res.json(unmatched)
+    sendData(res, unmatched)
   } catch (err: any) {
-    res.status(500).json({ error: err.message })
+    sendError(res, 500, 'INTERNAL_ERROR', err.message ?? 'Unexpected error')
   }
 })
 
