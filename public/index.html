@@ -289,12 +289,14 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
-        lastRunId = data.runId;
-        renderSummary(data.summary || {}, data.runId);
+        const payload = data.data || data;
+
+        lastRunId = payload.runId;
+        renderSummary(payload.summary || {}, payload.runId);
         document.getElementById("json").textContent = JSON.stringify(data, null, 2);
 
-        await loadUnmatched(data.runId);
-        setStatus(`Reconciliation completed. Run ID: ${data.runId}`, "ok");
+        await loadUnmatched(payload.runId);
+        setStatus(`Reconciliation completed. Run ID: ${payload.runId}`, "ok");
       } catch (err) {
         setStatus(`Error: ${err.message}`, "error");
       }
