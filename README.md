@@ -1,34 +1,27 @@
 # Transaction Reconciliation Engine
 
-Ingests two CSV sources of crypto transaction data (user-exported and exchange-exported), matches transactions across them using configurable tolerances, and produces a structured reconciliation report.
+## Overview
 
-## Setup
+Ingests user-exported and exchange-exported crypto transactions, matches them using configurable tolerances, and produces a reconciliation report with matched, conflicting, and unmatched entries.
+
+## Prerequisites
+
+- **Node.js 20+**
+- **MongoDB** running locally (or set `MONGO_URI`)
+
+## Quick start
 
 ```bash
 npm install
 npm run build
-```
-
-## Usage
-
-### Start the server
-
-```bash
 npm start
 ```
 
-Server listens on port 3000 by default (configurable via `PORT` env variable).
+The server listens on port **3000** by default (override with `PORT`).
 
-### API Endpoints
+## Run reconciliation
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/reconcile` | Trigger reconciliation. Accepts optional config overrides in body. |
-| `GET` | `/report/:runId` | Download full CSV report. |
-| `GET` | `/report/:runId/summary` | JSON summary counts. |
-| `GET` | `/report/:runId/unmatched` | JSON list of unmatched rows. |
-
-### Reconcile request
+Trigger a reconciliation run and get a run ID plus summary counts.
 
 ```json
 POST /reconcile
@@ -38,14 +31,13 @@ POST /reconcile
 }
 ```
 
-Returns:
 ```json
 {
   "data": {
     "runId": "uuid",
     "summary": {
       "matched": 23,
-      "conflicting": 0,
+      "conflicting": 1,
       "unmatchedUser": 3,
       "unmatchedExchange": 2
     }
@@ -53,42 +45,65 @@ Returns:
 }
 ```
 
-### Configuration
+## Fetch reports
 
-Tolerances are configurable via three mechanisms (request body overrides env, which overrides file):
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/report/:runId` | Download full CSV report |
+| `GET` | `/report/:runId/summary` | JSON summary counts |
+| `GET` | `/report/:runId/unmatched` | JSON list of unmatched rows |
+
+Example summary response:
+
+```json
+{
+  "data": {
+    "runId": "uuid",
+    "summary": {
+      "matched": 23,
+      "conflicting": 1,
+      "unmatchedUser": 3,
+      "unmatchedExchange": 2
+    },
+    "config": {
+      "timestampToleranceSeconds": 300,
+      "quantityTolerancePct": 0.01
+    }
+  }
+}
+```
+
+## Configuration
+
+Tolerances can be set in the request body, environment variables, or the default config file (env overrides the file, request overrides env).
 
 | Parameter | Default | Env variable |
 |-----------|---------|-------------|
 | `timestampToleranceSeconds` | 300 | `TIMESTAMP_TOLERANCE_SECONDS` |
 | `quantityTolerancePct` | 0.01 | `QUANTITY_TOLERANCE_PCT` |
 
-Other config in `config/default.json`: `port`, `mongoUri`, `userCsvPath`, `exchangeCsvPath`.
+Other common environment variables: `PORT`, `MONGO_URI`.
 
-### Prerequisites
+## Matching rules
 
-- **Node.js 20+**
-- **MongoDB** running locally on port 27017 (or set `MONGO_URI` env)
-- Sample CSVs (`user_transactions.csv`, `exchange_transactions.csv`) at repo root
+- **Timestamp tolerance** and **quantity tolerance** are applied first.
+- **Type mapping** supports `TRANSFER_IN` ↔ `TRANSFER_OUT`.
+- **Asset aliases** map common names (e.g., bitcoin → BTC).
+- **Conflicts** are “near misses” that exceed base tolerances but match under relaxed criteria.
 
-## Running tests
+## Data quality handling
 
-```bash
-npm test
-```
+Bad rows are **not dropped**. Issues like malformed timestamps, missing types, negative quantities, and duplicates are flagged and logged, and the rows still participate in reconciliation.
 
-Uses `mongodb-memory-server` for integration tests — no external MongoDB needed.
+## API response format
 
-## API Response Format
-
-Successful JSON responses are wrapped:
+Successful JSON responses:
 
 ```json
-{
-  "data": { "..." : "..." }
-}
+{ "data": { "..." : "..." } }
 ```
 
-Errors follow:
+Error responses:
 
 ```json
 {
@@ -102,57 +117,16 @@ Errors follow:
 }
 ```
 
-## Key Design Decisions
+## Running tests
 
-### TypeScript over JavaScript
-
-Type safety catches field mismatches between two data sources with subtly different schemas.
-
-### N-pass greedy matching + conflict detection
-
-Strict matching happens within configured tolerances, then a conflict pass pairs "near misses" and marks them as `conflicting` instead of `matched`.
-
-| Pass | Purpose |
-|------|---------|
-| Pass 1 | Strict exact match (no mappings) within tolerance |
-| Pass 2 | Strict match with type mapping: `TRANSFER_IN` ↔ `TRANSFER_OUT` |
-| Pass 3 | Strict match with asset aliases (`bitcoin` → `BTC`) |
-| Pass 4 | Conflict detection with relaxed quantity tolerance (10×) |
-| Pass 5 | Conflict detection with max tolerance (3× timestamp, 50× quantity) |
-
-### Data quality: flag, don't drop
-
-All rows are ingested regardless of quality issues. Malformed timestamps, negative quantities, missing types, and duplicates are flagged with a reason and still passed through the matching engine. This preserves auditability — no silent drops.
-
-### Duplicate handling
-
-Duplicate rows (e.g., USR-001 appearing twice) are ingested independently. The first occurrence matches normally; the second becomes "Unmatched (User)" with a reason indicating it's a duplicate.
-
-### Asset aliasing
-
-Common aliases (`bitcoin` → `BTC`, `ethereum` → `ETH`) are resolved case-insensitively. The alias map is in `src/matching/typeMappings.ts` and can be extended without code changes.
-
-### Embedded report storage
-
-Match results are embedded within each `ReconciliationRun` document. This avoids collection joins for CSV generation and summary queries. If result sets grow beyond ~10k rows per run, migrating to a separate collection is straightforward.
-
-## Project structure
-
+```bash
+npm test
 ```
-├── src/
-│   ├── config/          # Config loader (file → env → override)
-│   ├── db/
-│   │   ├── connection.ts
-│   │   └── models/      # Mongoose schemas
-│   ├── ingest/          # CSV parsing + data quality detection
-│   ├── matching/        # N-pass greedy matching engine
-│   ├── report/          # CSV generation + summary computation
-│   ├── api/             # Express routes
-│   └── index.ts         # Server entry point
-├── tests/
-│   ├── unit/            # Unit tests per module
-│   └── integration/     # Full pipeline tests with real CSVs
-├── user_transactions.csv
-├── exchange_transactions.csv
-└── config/default.json
-```
+
+Integration tests use an in-memory MongoDB instance — no external DB needed.
+
+## Troubleshooting
+
+- **MongoDB connection errors:** ensure MongoDB is running or set `MONGO_URI`.
+- **Port already in use:** set `PORT` to a free port.
+- **Unexpected CSV parsing issues:** ensure the input CSVs have the expected header columns and UTF‑8 compatible encoding.

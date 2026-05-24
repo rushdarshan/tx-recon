@@ -1,4 +1,6 @@
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger'
 import routes from './routes'
 
 export function createServer() {
@@ -11,6 +13,8 @@ export function createServer() {
       message: 'Transaction Reconciliation Engine API is running',
     })
   })
+
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
   app.use('/', routes)
   return app

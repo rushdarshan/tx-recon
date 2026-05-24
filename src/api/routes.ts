@@ -40,6 +40,58 @@ function sendError(
   res.status(status).json(payload)
 }
 
+/**
+ * @openapi
+ * /reconcile:
+ *   post:
+ *     summary: Run reconciliation
+ *     description: Ingests CSV files, matches transactions, and returns summary
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userCsvPath:
+ *                 type: string
+ *                 default: user_transactions.csv
+ *               exchangeCsvPath:
+ *                 type: string
+ *                 default: exchange_transactions.csv
+ *               timestampToleranceSeconds:
+ *                 type: number
+ *                 default: 300
+ *               quantityTolerancePct:
+ *                 type: number
+ *                 default: 0.01
+ *     responses:
+ *       200:
+ *         description: Reconciliation completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     runId:
+ *                       type: string
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         matched:
+ *                           type: integer
+ *                         conflicting:
+ *                           type: integer
+ *                         unmatchedUser:
+ *                           type: integer
+ *                         unmatchedExchange:
+ *                           type: integer
+ *       400:
+ *         description: Invalid tolerance values
+ */
 router.post('/reconcile', async (req: Request, res: Response) => {
   try {
     const baseConfig = loadConfig(req.body)
@@ -98,6 +150,27 @@ router.post('/reconcile', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * @openapi
+ * /report/{runId}:
+ *   get:
+ *     summary: Download reconciliation CSV
+ *     parameters:
+ *       - in: path
+ *         name: runId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: CSV file
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *       404:
+ *         description: Run not found
+ */
 router.get('/report/:runId', async (req: Request, res: Response) => {
   try {
     const config = loadConfig()
@@ -122,6 +195,23 @@ router.get('/report/:runId', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * @openapi
+ * /report/{runId}/summary:
+ *   get:
+ *     summary: Get reconciliation summary
+ *     parameters:
+ *       - in: path
+ *         name: runId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Summary data
+ *       404:
+ *         description: Run not found
+ */
 router.get('/report/:runId/summary', async (req: Request, res: Response) => {
   try {
     const config = loadConfig()
@@ -146,6 +236,23 @@ router.get('/report/:runId/summary', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * @openapi
+ * /report/{runId}/unmatched:
+ *   get:
+ *     summary: List unmatched transactions
+ *     parameters:
+ *       - in: path
+ *         name: runId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Unmatched transactions
+ *       404:
+ *         description: Run not found
+ */
 router.get('/report/:runId/unmatched', async (req: Request, res: Response) => {
   try {
     const config = loadConfig()
