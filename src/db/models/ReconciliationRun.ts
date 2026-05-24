@@ -38,6 +38,25 @@ export interface IReconciliationRun extends Document {
   completedAt?: Date
 }
 
+const matchResultSchema = new Schema<IMatchResultDoc>({
+  category: { type: String, enum: ['matched', 'conflicting', 'unmatched_user', 'unmatched_exchange'], required: true },
+  reason: { type: String, required: true },
+  userTxId: { type: String, default: null },
+  exchangeTxId: { type: String, default: null },
+  userTimestamp: { type: String, default: null },
+  exchangeTimestamp: { type: String, default: null },
+  asset: { type: String, default: null },
+  type: { type: String, default: null },
+  userQuantity: { type: Number, default: null },
+  exchangeQuantity: { type: Number, default: null },
+  userPriceUsd: { type: Number, default: null },
+  exchangePriceUsd: { type: Number, default: null },
+  userFee: { type: Number, default: null },
+  exchangeFee: { type: Number, default: null },
+  userNote: { type: String, default: null },
+  exchangeNote: { type: String, default: null },
+}, { _id: false })
+
 const reconciliationRunSchema = new Schema<IReconciliationRun>({
   runId: { type: String, required: true, unique: true },
   config: {
@@ -51,7 +70,7 @@ const reconciliationRunSchema = new Schema<IReconciliationRun>({
     unmatchedUser: { type: Number, default: 0 },
     unmatchedExchange: { type: Number, default: 0 },
   },
-  results: { type: Schema.Types.Mixed, default: [] },
+  results: { type: [matchResultSchema], default: [] },
   errorMessage: { type: String },
   startedAt: { type: Date, default: Date.now },
   completedAt: { type: Date },

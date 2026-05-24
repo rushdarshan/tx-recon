@@ -33,10 +33,16 @@ export function checkQuality(row: RawTransaction, seenIds: Set<string>): Quality
     }
   }
 
-  if (seenIds.has(row.transactionId)) {
+  if (!row.transactionId || row.transactionId === '') {
+    flags.push({ field: 'transactionId', issue: 'missing', severity: 'error' })
+  }
+
+  if (row.transactionId && seenIds.has(row.transactionId)) {
     flags.push({ field: 'transactionId', issue: 'duplicate', severity: 'warning' })
   }
-  seenIds.add(row.transactionId)
+  if (row.transactionId) {
+    seenIds.add(row.transactionId)
+  }
 
   return flags
 }

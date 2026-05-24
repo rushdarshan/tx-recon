@@ -44,7 +44,7 @@ describe('Full reconciliation pipeline', () => {
     expect(matched.length).toBeGreaterThanOrEqual(20)
     expect(unmatchedUser.length).toBeGreaterThanOrEqual(1)
     expect(unmatchedExchange.length).toBeGreaterThanOrEqual(2)
-    expect(conflicting.length).toBe(0)
+    expect(conflicting.length).toBe(1)
 
     const total = matched.length + unmatchedUser.length + unmatchedExchange.length + conflicting.length
     expect(total).toBe(results.length)

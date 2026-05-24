@@ -24,6 +24,9 @@ function loadEnvConfig(): Partial<ReconciliationConfig> {
   if (process.env.QUANTITY_TOLERANCE_PCT) {
     config.quantityTolerancePct = parseFloat(process.env.QUANTITY_TOLERANCE_PCT)
   }
+  if (process.env.MONGO_URI) {
+    config.mongoUri = process.env.MONGO_URI
+  }
   return config
 }
 

@@ -82,17 +82,17 @@ Uses `mongodb-memory-server` for integration tests — no external MongoDB neede
 
 Type safety catches field mismatches between two data sources with subtly different schemas.
 
-### N-pass greedy matching
+### N-pass greedy matching + conflict detection
 
-Five passes with progressively relaxed criteria:
+Strict matching happens within configured tolerances, then a conflict pass pairs "near misses" and marks them as `conflicting` instead of `matched`.
 
-| Pass | Criteria |
-|------|----------|
-| Pass 1 | Exact match on all fields (asset, type, quantity, timestamp ± tolerance) |
-| Pass 2 | Relax quantity tolerance 10× |
-| Pass 3 | Apply type mapping: `TRANSFER_IN` ↔ `TRANSFER_OUT` |
-| Pass 4 | Resolve asset aliases (`bitcoin` → `BTC`) |
-| Pass 5 | Max tolerance (3× timestamp, 50× quantity) |
+| Pass | Purpose |
+|------|---------|
+| Pass 1 | Strict exact match (no mappings) within tolerance |
+| Pass 2 | Strict match with type mapping: `TRANSFER_IN` ↔ `TRANSFER_OUT` |
+| Pass 3 | Strict match with asset aliases (`bitcoin` → `BTC`) |
+| Pass 4 | Conflict detection with relaxed quantity tolerance (10×) |
+| Pass 5 | Conflict detection with max tolerance (3× timestamp, 50× quantity) |
 
 ### Data quality: flag, don't drop
 

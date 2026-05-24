@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "backend-development": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-development/SKILL.md",
+      "computedHash": "7f05a82b3c35262cb0bcd458baf8abdd2f7e5245b75a698bdd2c42484d2d33ca"
+    },
+    "csv-wrangler": {
+      "source": "majesticlabs-dev/majestic-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/majestic-data/skills/csv-wrangler/SKILL.md",
+      "computedHash": "851885f4da61a767554633ef031811b524bf7dd52210849b7e1d6079e34e2842"
+    },
+    "mongodb": {
+      "source": "hoodini/ai-agents-skills",
+      "sourceType": "github",
+      "skillPath": "skills/mongodb/SKILL.md",
+      "computedHash": "7307fd4f2e946457587880475908c63d9df7017150ca1abde5629055f7961f69"
+    }
+  }
+}

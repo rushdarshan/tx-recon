@@ -40,7 +40,7 @@ const transactionSchema = new Schema<ITransaction>({
   ingestedAt: { type: Date, default: Date.now },
 })
 
-transactionSchema.index({ transactionId: 1, source: 1 }, { unique: true })
+transactionSchema.index({ transactionId: 1, source: 1 })
 transactionSchema.index({ source: 1 })
 
 export const Transaction = mongoose.model<ITransaction>('Transaction', transactionSchema)

@@ -66,6 +66,15 @@ describe('runMatching', () => {
     expect(matched!.reason).toContain('asset-aliased')
   })
 
+  it('flags conflicting when quantity exceeds tolerance but is close', () => {
+    const users = [userTx({ transactionId: 'USR-012', quantity: 0.3, timestamp: new Date('2024-03-06T13:30:00Z') })]
+    const exchanges = [exchangeTx({ transactionId: 'EXC-1012', quantity: 0.3001, timestamp: new Date('2024-03-06T13:30:00Z') })]
+    const results = runMatching(users, exchanges, defaultConfig)
+    expect(results).toHaveLength(1)
+    expect(results[0].category).toBe('conflicting')
+    expect(results[0].reason).toContain('quantity diff')
+  })
+
   it('leaves unmatched exchange rows', () => {
     const users = [userTx({ transactionId: 'USR-001' })]
     const exchanges = [

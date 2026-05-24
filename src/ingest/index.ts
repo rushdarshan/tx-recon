@@ -60,11 +60,7 @@ export async function ingestCsv(filePath: string, source: 'user' | 'exchange'): 
     source: row.source,
   }))
 
-  try {
-    await Transaction.insertMany(docs, { ordered: false })
-  } catch (err: any) {
-    if (err.code !== 11000) throw err
-  }
+  await Transaction.insertMany(docs, { ordered: false })
 
   return parsedRows
 }

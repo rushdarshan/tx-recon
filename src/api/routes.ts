@@ -29,18 +29,6 @@ router.post('/reconcile', async (req: Request, res: Response) => {
 
     await connect(runConfig.mongoUri!)
 
-    const run = new ReconciliationRun({
-      runId,
-      config: {
-        timestampToleranceSeconds: runConfig.timestampToleranceSeconds,
-        quantityTolerancePct: runConfig.quantityTolerancePct,
-      },
-      status: 'running',
-      summary: { matched: 0, conflicting: 0, unmatchedUser: 0, unmatchedExchange: 0 },
-      results: [],
-    })
-    await run.save()
-
     await Transaction.deleteMany({})
 
     const { userRows, exchangeRows } = await ingestAll(
@@ -53,11 +41,17 @@ router.post('/reconcile', async (req: Request, res: Response) => {
     const reportRows = results.map(r => toReportRow(r))
     const summary = computeSummary(reportRows)
 
-    run.status = 'completed'
-    run.summary = summary
-    run.results = results as any
-    run.markModified('results')
-    run.completedAt = new Date()
+    const run = new ReconciliationRun({
+      runId,
+      config: {
+        timestampToleranceSeconds: runConfig.timestampToleranceSeconds,
+        quantityTolerancePct: runConfig.quantityTolerancePct,
+      },
+      status: 'completed',
+      summary,
+      results,
+      completedAt: new Date(),
+    })
     await run.save()
 
     await disconnect()
