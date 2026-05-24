@@ -490,8 +490,9 @@
       try {
         const res = await fetch('/report/' + runId + '/unmatched');
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        renderUnmatched(data);
+        const response = await res.json();
+        const rows = response.data || response;
+        renderUnmatched(rows);
       } catch (err) {
         document.getElementById('unmatchedBody').innerHTML =
           '<tr><td class="empty-state" colspan="4">Failed to load unmatched rows.</td></tr>';
