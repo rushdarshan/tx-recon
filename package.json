@@ -36,7 +36,6 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "roots": ["<rootDir>/tests"],
-    "setupFilesAfterSetup": [],
     "verbose": true
   }
 }
