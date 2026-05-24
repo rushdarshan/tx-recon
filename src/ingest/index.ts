@@ -9,10 +9,16 @@ function parseValue(value: string | null): number | null {
   return isNaN(n) ? null : n
 }
 
+function parseTimestamp(value: string | null): Date | null {
+  if (value === null || value === '') return null
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? null : d
+}
+
 function toParsed(raw: RawTransaction): ParsedTransaction {
   return {
     transactionId: raw.transactionId,
-    timestamp: raw.timestamp ? new Date(raw.timestamp) : null,
+    timestamp: parseTimestamp(raw.timestamp),
     type: (raw.type as ParsedTransaction['type']) ?? null,
     asset: raw.asset ?? null,
     quantity: parseValue(raw.quantity),

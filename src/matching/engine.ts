@@ -42,6 +42,15 @@ export function relate(
   )
 }
 
+function safeIsoString(d: Date | null | undefined): string | null {
+  if (d === null || d === undefined) return null
+  try {
+    return d.toISOString()
+  } catch {
+    return null
+  }
+}
+
 function buildMatchResult(
   userTx: IndexedTx | null,
   exchangeTx: IndexedTx | null,
@@ -53,8 +62,8 @@ function buildMatchResult(
     reason,
     userTxId: userTx?.tx.transactionId ?? null,
     exchangeTxId: exchangeTx?.tx.transactionId ?? null,
-    userTimestamp: userTx?.tx.timestamp?.toISOString() ?? null,
-    exchangeTimestamp: exchangeTx?.tx.timestamp?.toISOString() ?? null,
+    userTimestamp: safeIsoString(userTx?.tx.timestamp),
+    exchangeTimestamp: safeIsoString(exchangeTx?.tx.timestamp),
     asset: userTx?.tx.asset ?? exchangeTx?.tx.asset ?? null,
     type: userTx?.tx.type ?? exchangeTx?.tx.type ?? null,
     userQuantity: userTx?.tx.quantity ?? null,
