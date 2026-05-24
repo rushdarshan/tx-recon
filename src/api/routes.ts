@@ -55,7 +55,8 @@ router.post('/reconcile', async (req: Request, res: Response) => {
 
     run.status = 'completed'
     run.summary = summary
-    run.results = results
+    run.results = results as any
+    run.markModified('results')
     run.completedAt = new Date()
     await run.save()
 

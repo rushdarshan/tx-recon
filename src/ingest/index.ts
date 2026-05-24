@@ -1,7 +1,7 @@
 import { parseCsv } from './csvParser'
 import { checkAllQuality } from './qualityChecker'
 import { Transaction } from '../db/models/Transaction'
-import { ParsedTransaction, RawTransaction } from '../types'
+import { ParsedTransaction, RawTransaction, QualityFlag } from '../types'
 
 function parseValue(value: string | null): number | null {
   if (value === null || value === '') return null
@@ -30,12 +30,20 @@ function toParsed(raw: RawTransaction): ParsedTransaction {
   }
 }
 
+function logQualityIssues(row: RawTransaction, flags: QualityFlag[]): void {
+  if (flags.length === 0) return
+  const issues = flags.map(flag => `${flag.field}:${flag.issue}`).join(', ')
+  const id = row.transactionId || '(missing-id)'
+  console.warn(`[ingest] ${row.source} ${id} flagged: ${issues}`)
+}
+
 export async function ingestCsv(filePath: string, source: 'user' | 'exchange'): Promise<ParsedTransaction[]> {
   const rawRows = parseCsv(filePath, source)
   const flagsMatrix = checkAllQuality(rawRows)
 
   const parsedRows: ParsedTransaction[] = rawRows.map((row, i) => {
     row.qualityFlags = flagsMatrix[i]
+    logQualityIssues(row, row.qualityFlags)
     return toParsed(row)
   })
 
@@ -52,7 +60,11 @@ export async function ingestCsv(filePath: string, source: 'user' | 'exchange'): 
     source: row.source,
   }))
 
-  await Transaction.insertMany(docs, { ordered: false })
+  try {
+    await Transaction.insertMany(docs, { ordered: false })
+  } catch (err: any) {
+    if (err.code !== 11000) throw err
+  }
 
   return parsedRows
 }
